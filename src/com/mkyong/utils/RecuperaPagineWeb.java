@@ -131,7 +131,7 @@ public class RecuperaPagineWeb  {
   		
   	}
   	public void divisionSeveralFileByCategory() throws Exception{
-  		this.pages = new ArrayList<>();
+  		this.pages = new ArrayList();
   		this.pageAndPosts = new ArrayList();
   		
   		Properties prop = new Properties();
@@ -166,13 +166,24 @@ public class RecuperaPagineWeb  {
   		}
   		System.out.println("Numero di categorie trovate: "+categoriesWithPages.size());
   		
-  		int num = 1;
   		iteratorCategory = categoriesWithPages.iterator();
   		Iterator<PostWithPage> postWithPage;
+  		String appCategory = "";
+  		boolean control = false;
   		while(iteratorCategory.hasNext()){
-  			
+  			control = false;
   			CategoryWithPages categories = iteratorCategory.next();
-  			ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path")+num+".csv");
+  			for(int i = 0; i < categories.getCategory().length(); i++){
+  				if(categories.getCategory().charAt(i) == '/'){
+  					appCategory = categories.getCategory().substring(0,i)+"_"+categories.getCategory().substring(i+1,categories.getCategory().length());
+  					control = true;
+  					break;
+  				}
+  			}
+  			if(!control){
+  				appCategory = categories.getCategory();
+  			}
+  			ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path")+appCategory+".csv");
   			postWithPage = categories.getPosts().iterator();
   			
   			while(postWithPage.hasNext()){
@@ -181,7 +192,7 @@ public class RecuperaPagineWeb  {
   				write.writeCsv(convertFromPost(support));
   				
   			}
-  			num++;
+
   			write.close();
   		}
   		

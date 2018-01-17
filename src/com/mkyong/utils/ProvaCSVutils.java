@@ -9,7 +9,7 @@ public class ProvaCSVutils {
 	private FileWriter file;
 	
 	ProvaCSVutils(String fileName) throws IOException{
-        
+
         this.file = new FileWriter(fileName);
 	}
 
