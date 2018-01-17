@@ -165,19 +165,19 @@ public class RecuperaPagineWeb  {
   			}
   		}
   		System.out.println("Numero di categorie trovate: "+categoriesWithPages.size());
-  		String appCategory;
   		iteratorCategory = categoriesWithPages.iterator();
   		Iterator<PostWithPage> postWithPage;
+  		ProvaCSVutils write;
   		while(iteratorCategory.hasNext()){
   			
   			CategoryWithPages categories = iteratorCategory.next();
   			if(categories.getCategory().indexOf('/') >= 0){
-  				appCategory = categories.getCategory().replace('/','_');
+  				write = new ProvaCSVutils(prop.getProperty("local_path")+categories.getCategory().replace('/','_')+".csv");
   			}
   			else{
-  				appCategory = categories.getCategory();
+  				write = new ProvaCSVutils(prop.getProperty("local_path")+categories.getCategory()+".csv");
   			}
-  			ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path")+appCategory+".csv");
+  			
   			postWithPage = categories.getPosts().iterator();
   			
   			while(postWithPage.hasNext()){
