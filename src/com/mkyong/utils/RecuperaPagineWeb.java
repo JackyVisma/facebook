@@ -167,17 +167,9 @@ public class RecuperaPagineWeb  {
   		System.out.println("Numero di categorie trovate: "+categoriesWithPages.size());
   		iteratorCategory = categoriesWithPages.iterator();
   		Iterator<PostWithPage> postWithPage;
-  		ProvaCSVutils write;
   		while(iteratorCategory.hasNext()){
-  			
   			CategoryWithPages categories = iteratorCategory.next();
-  			if(categories.getCategory().indexOf('/') >= 0){
-  				write = new ProvaCSVutils(prop.getProperty("local_path")+categories.getCategory().replace('/','_')+".csv");
-  			}
-  			else{
-  				write = new ProvaCSVutils(prop.getProperty("local_path")+categories.getCategory()+".csv");
-  			}
-  			
+  			ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path")+categories.getCategory().replace('/','_')+".csv");
   			postWithPage = categories.getPosts().iterator();
   			
   			while(postWithPage.hasNext()){
