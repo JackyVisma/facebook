@@ -21,6 +21,8 @@ public class RicercaDeviceFacebook {
 	private final FacebookClient facebookClientDevice;
 	
 	private List<UserDeviceMe> userDevice;
+	
+	private List<UserDevicePlatform> PlatformWithDevices;
 		
 	public static void main(String[] args) throws IOException {
 		 if (args.length == 0)
@@ -42,7 +44,7 @@ public class RicercaDeviceFacebook {
 				Parameter.with("type", "adTargetingCategory"),Parameter.with("class", "user_device"));
 		userDevice = publicSearch.getData();
 		
-		
+		System.out.println("Numero Device: "+userDevice.size());
 		
 	}
 	public void writeCSVFile() throws IOException{
@@ -56,15 +58,48 @@ public class RicercaDeviceFacebook {
 		// load a properties file
 		prop.load(input);
 		
-		System.out.println("Write in Csv");
-		ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path2")+"A.csv");
 		
+		this.PlatformWithDevices = new ArrayList();
+		
+		boolean verifica = false;
 		Iterator<UserDeviceMe> iteratorDevice = userDevice.iterator();
+		Iterator<UserDevicePlatform> iteratorDevicesPlatform = PlatformWithDevices.iterator();
+		
 		while(iteratorDevice.hasNext()){
-			UserDeviceMe deviceSupport = iteratorDevice.next();
-			write.writeCsv(convertFromPost(deviceSupport));
+			verifica = false;
+			UserDeviceMe appDevice = iteratorDevice.next();
+			iteratorDevicesPlatform = PlatformWithDevices.iterator();
+			while(iteratorDevicesPlatform.hasNext()){
+				UserDevicePlatform deviceAndPlatform = iteratorDevicesPlatform.next();
+				if(appDevice.getPlatform().equals(deviceAndPlatform.getPlatform())){
+					deviceAndPlatform.getDevices().add(appDevice);
+					verifica = true;
+				}
+			}
+			if(!verifica){
+				UserDevicePlatform deviceAndPlatform = new UserDevicePlatform(appDevice);
+				PlatformWithDevices.add(deviceAndPlatform);
+			}	
 		}
-		write.close();
+		System.out.println("Numero di platform trovate: "+PlatformWithDevices.size());
+		
+		System.out.println("Write in Csv");
+		
+		
+		iteratorDevicesPlatform = PlatformWithDevices.iterator();
+		Iterator<UserDeviceMe> platformWithDevice;
+		while(iteratorDevicesPlatform.hasNext()){
+			UserDevicePlatform platforms = iteratorDevicesPlatform.next();
+			ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path2")+platforms.getPlatform().replace('/','_')+".csv");
+			
+			platformWithDevice = platforms.getDevices().iterator();
+			while(platformWithDevice.hasNext()){
+				UserDeviceMe completeDevice = platformWithDevice.next();
+				write.writeCsv(convertFromPost(completeDevice));
+			}
+			write.close();
+		}
+		
 		System.out.println("end write");
 	}
 	public List<String> convertFromPost(UserDeviceMe device){
