@@ -21,6 +21,8 @@ public class RicercaDeviceFacebook {
 	private final FacebookClient facebookClientDevice;
 	
 	private List<UserDeviceMe> userDevice;
+	
+	private List<UserDevicePlatform> platformWithDevices;
 		
 	public static void main(String[] args) throws IOException {
 		 if (args.length == 0)
@@ -56,18 +58,48 @@ public class RicercaDeviceFacebook {
 		// load a properties file
 		prop.load(input);
 		
-		System.out.println("Write in Csv");
-		ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path2")+"A.csv");
+		this.platformWithDevices = new ArrayList();
 		
+		boolean verifica = false;
 		Iterator<UserDeviceMe> iteratorDevice = userDevice.iterator();
+		Iterator<UserDevicePlatform> iteratorDevicesPlatform = platformWithDevices.iterator();
+		
 		while(iteratorDevice.hasNext()){
-			UserDeviceMe deviceSupport = iteratorDevice.next();
-			write.writeCsv(convertFromPost(deviceSupport));
+			verifica = false;
+			UserDeviceMe appDevice = iteratorDevice.next();
+			iteratorDevicesPlatform = platformWithDevices.iterator();
+			while(iteratorDevicesPlatform.hasNext()){
+				UserDevicePlatform deviceAndPlatform = iteratorDevicesPlatform.next();
+				if(appDevice.getPlatform().equals(deviceAndPlatform.getPlatform())){
+					deviceAndPlatform.getDevices().add(appDevice);
+					verifica = true;
+				}
+			}
+			if(!verifica){
+				UserDevicePlatform deviceAndPlatform = new UserDevicePlatform(appDevice);
+				platformWithDevices.add(deviceAndPlatform);
+			}	
 		}
-		write.close();
+		
+		
+		
+		System.out.println("Numero di platform trovate: "+platformWithDevices.size());
+		
+		System.out.println("Write in Csv");
+		
+		
+		iteratorDevicesPlatform = platformWithDevices.iterator();
+		Iterator<UserDeviceMe> platformWithDevice;
+		while(iteratorDevicesPlatform.hasNext()){
+			UserDevicePlatform platforms = iteratorDevicesPlatform.next();
+			ProvaCSVutils write = new ProvaCSVutils(prop.getProperty("local_path2")+platforms.getPlatform().replace('/','_')+".csv");
+			platforms.divisionSeveralPlatform(platforms,write);
+			write.close();
+		}
+
 		System.out.println("end write");
 	}
-	public List<String> convertFromPost(UserDeviceMe device){
+	public static List<String> convertFromPost(UserDeviceMe device){
   		List<String> postToString = new ArrayList();
 			postToString.add(device.getName());
 			postToString.add(device.getDescription());
